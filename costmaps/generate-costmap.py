@@ -42,6 +42,21 @@ class CostmapGenerator:
                                                 self.map_properties['resolution'])
         self.grid_starting_position[1] = self.image.shape[1] - self.grid_starting_position[1] - 1
         self.grid_starting_position = self.grid_starting_position.astype(int)
+        
+        # draw starting position as cross and 1-meter grid
+        self.start_and_scale = np.copy(self.binary_image)
+        self.start_and_scale = self.start_and_scale * 0.5 + 0.5
+        iter_x = 0	
+        while iter_x < self.image.shape[1]:
+            iter_y = 0
+            while iter_y < self.image.shape[0]:
+                if (iter_y - self.grid_starting_position[1]) * self.map_properties['resolution'] % 1 == 0 or \
+                   (iter_x - self.grid_starting_position[0]) * self.map_properties['resolution'] % 1 == 0 :
+                    self.start_and_scale[iter_y][iter_x] = 0.7
+                iter_y += 1
+            iter_x += 1
+        for [step_x, step_y] in [[0, 1],[0, -1],[1, 0],[-1, 0],[1, 1],[-1, 1],[1, -1],[-1, -1]]:
+            self.start_and_scale[self.grid_starting_position[1] + step_x][self.grid_starting_position[0] + step_y] = 0
 
         if self.verbose:
             print("Verbose infos:")
@@ -67,7 +82,6 @@ class CostmapGenerator:
             filename_extra = "full"
         else:
             binary_image = np.copy(self.binary_image)
-            # binary_image[520, 333] = False # optimize for berlin
             binary_image = morphology.binary_erosion(binary_image, selem=morphology.selem.disk(radius=erosion_value, dtype=np.bool))
             filename_extra = "eroded-by-{}".format(erosion_value)
 
@@ -210,11 +224,7 @@ class CostmapGenerator:
         race_line = np.zeros_like(self.binary_image, np.float)
         spline_line = np.zeros_like(self.binary_image, np.float)
 
-        race_pos = [starting_position[1], starting_position[0]+1]; # start one pixel right of the finish-line
-        #if filename_part == "eroded":
-        #    race_pos = [starting_position[1]+25, starting_position[0]+30]; # optimize for berlin
-        #else:
-        #    race_pos = [starting_position[1], starting_position[0]+10]; # optimize for berlin
+        race_pos = [starting_position[1], starting_position[0]+10]; # start ten pixels right of the finish-line
 
         race_line[race_pos[0], race_pos[1]] = 1;
         cv = [race_pos];
@@ -236,22 +246,12 @@ class CostmapGenerator:
                     better = True
             if np.mod(a_distance,15) == 0:
                 cv = np.append(cv, [race_pos], axis=0)
-            if filename_part == "eroded":
-                if best_pos[1] > 395: # optimize for berlin, clip at right area
-                    best_pos = [race_pos[0] + 1, race_pos[1] + 0]
-                    #print("  fixed_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
-                elif best_pos[0] < starting_position[1]+25: # optimize for berlin, clip at top area
-                    best_pos = [race_pos[0] + 0, race_pos[1] + 1]
-                    #print("  fixed_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
-                #else:
-                    #print("  best_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
+
+            #print("  best_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
 
             race_pos = best_pos
             if race_line[race_pos[0], race_pos[1]] == 1: # cannot advance, car is stuck
                 break
-
-            #if best_pos[0] < self.image_center[0]+50 and best_pos[1] == self.image_center[1]: # optimize for berlin, finish lap
-            #    break
 
             race_line[race_pos[0], race_pos[1]] = 1;
 
@@ -295,19 +295,19 @@ class CostmapGenerator:
         drivable_area, distance_to_target_smoothed, normalized_distance_to_target_smoothed, _, _, _, _ = \
             self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, forward_direction = False)
 
-        drivable_area, distance_to_finish_line, normalized_distance_to_finish_line, _, _, _, _ = \
+        drivable_area, distance_from_start_line, normalized_distance_from_start_line, _, _, _, _ = \
             self.compute_distance_transform(starting_position=self.grid_starting_position, forward_direction = True)
 
         #self.compute_raceline(self.grid_starting_position, drivable_area, drivable_area, distance_to_target_smoothed, "full")
         #normalized_spline_line = self.compute_raceline(self.grid_starting_position, drivable_area_eroded, drivable_area, distance_to_target_eroded_smoothed, "eroded")
 
-        #distances_from_nearest_obstacle = ndimage.distance_transform_edt(drivable_area, return_distances=True, return_indices=False)
-        #distances_from_nearest_obstacle = distances_from_nearest_obstacle.astype(float) * float(self.map_properties['resolution'])
-        #normalized_distances_from_nearest_obstacle = distances_from_nearest_obstacle / np.amax(distances_from_nearest_obstacle.flatten())
+        distances_from_nearest_obstacle = ndimage.distance_transform_edt(drivable_area, return_distances=True, return_indices=False)
+        distances_from_nearest_obstacle = distances_from_nearest_obstacle.astype(float) * float(self.map_properties['resolution'])
+        normalized_distances_from_nearest_obstacle = distances_from_nearest_obstacle / np.amax(distances_from_nearest_obstacle.flatten())
 
         if self.verbose:
-            print("Max. distance to finish line: {:8.4f}".format(
-                np.amax(distance_to_finish_line)))
+            print("Max. distance from start line: {:8.4f}".format(
+                np.amax(distance_from_start_line)))
         #    print("Max. distance to nearest obstacle: {:8.4f}".format(
         #        np.amax(distances_from_nearest_obstacle)))
 
@@ -316,16 +316,17 @@ class CostmapGenerator:
             return (new_image)
 
         if self.export_images:
+            io.imsave(self.output_filename_root + '.start_and_scale.png', img_as_ubyte(self.start_and_scale), check_contrast=False)
             io.imsave(self.output_filename_root + '.drivable_area.png', img_as_ubyte(drivable_area), check_contrast=False)
-            io.imsave(self.output_filename_root + '.distance_to_finish_line.colorized.png', mask_image(
-                          image=cmapy.colorize(img_as_ubyte(normalized_distance_to_finish_line), 'plasma', rgb_order=True),
+            io.imsave(self.output_filename_root + '.distance_from_start_line.colorized.png', mask_image(
+                          image=cmapy.colorize(img_as_ubyte(normalized_distance_from_start_line), 'plasma', rgb_order=True),
                           mask=drivable_area), check_contrast=False)
             io.imsave(self.output_filename_root + '.distance_to_target_smoothed.colorized.png', mask_image(
                           image=cmapy.colorize(img_as_ubyte(normalized_distance_to_target_smoothed), 'plasma', rgb_order=True),
                           mask=drivable_area), check_contrast=False)
-            #io.imsave(self.output_filename_root + '.distances_from_nearest_obstacle.colorized.png', mask_image(
-            #              image=cmapy.colorize(img_as_ubyte(normalized_distances_from_nearest_obstacle), 'plasma', rgb_order=True),
-            #              mask=drivable_area), check_contrast=False)
+            io.imsave(self.output_filename_root + '.distances_from_nearest_obstacle.colorized.png', mask_image(
+                          image=cmapy.colorize(img_as_ubyte(normalized_distances_from_nearest_obstacle), 'plasma', rgb_order=True),
+                          mask=drivable_area), check_contrast=False)
             #io.imsave(self.output_filename_root + '.spline_line.colorized.png', mask_image(
             #              image=cmapy.colorize(img_as_ubyte(normalized_spline_line), 'plasma', rgb_order=True),
             #              mask=drivable_area), check_contrast=False)
@@ -340,8 +341,12 @@ class CostmapGenerator:
                                         np.amin(self.image),
                                         np.amax(self.image),
                                         self.image.shape[0], 
-                                        self.image.shape[1]],
-                                 drivable_area, normalized_distance_to_finish_line, normalized_distance_to_target_smoothed)
+                                        self.image.shape[1],
+                                        self.map_properties['resolution']],
+                                 drivable_area, 
+                                 normalized_distance_from_start_line, 
+                                 normalized_distance_to_target_smoothed,
+                                 normalized_distances_from_nearest_obstacle)
 
 # ======================================================================================================================
 
