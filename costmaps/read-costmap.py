@@ -88,5 +88,16 @@ if __name__ == "__main__":
     costmap.get_cost(0,0,3)
     costmap.get_cost(1,0,3)
     costmap.get_cost(0,1,3)
-    costmap	.get_cost(1,1,3)
+    costmap.get_cost(1,1,3)
+
+    print("test:")
+    costmap.get_cost(0,2,0)
+    costmap.get_cost(0,2,1)
+    costmap.get_cost(0,2,2)
+    costmap.get_cost(0,2,3)
+
+    costmap.get_cost_grid_coordinates(0,2,0)
+    costmap.get_cost_grid_coordinates(0,2,1)
+    costmap.get_cost_grid_coordinates(0,2,2)
+    costmap.get_cost_grid_coordinates(0,2,3)
 

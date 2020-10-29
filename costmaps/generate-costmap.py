@@ -43,7 +43,7 @@ class CostmapGenerator:
         self.grid_starting_position[1] = self.image.shape[1] - self.grid_starting_position[1] - 1
         self.grid_starting_position = self.grid_starting_position.astype(int)
         
-        # draw starting position as cross and 1-meter grid
+        # draw starting position as circle, 1-meter grid and x/y-axis
         self.start_and_scale = np.copy(self.binary_image)
         self.start_and_scale = self.start_and_scale * 0.5 + 0.5
         iter_x = 0	
@@ -52,11 +52,31 @@ class CostmapGenerator:
             while iter_y < self.image.shape[0]:
                 if (iter_y - self.grid_starting_position[1]) * self.map_properties['resolution'] % 1 == 0 or \
                    (iter_x - self.grid_starting_position[0]) * self.map_properties['resolution'] % 1 == 0 :
-                    self.start_and_scale[iter_y][iter_x] = 0.7
+                    self.start_and_scale[iter_y][iter_x] = self.start_and_scale[iter_y][iter_x] * 0.85 + (1 - self.start_and_scale[iter_y][iter_x]) * 0.3
                 iter_y += 1
             iter_x += 1
         for [step_x, step_y] in [[0, 1],[0, -1],[1, 0],[-1, 0],[1, 1],[-1, 1],[1, -1],[-1, -1]]:
-            self.start_and_scale[self.grid_starting_position[1] + step_x][self.grid_starting_position[0] + step_y] = 0
+            self.start_and_scale[self.grid_starting_position[1] + step_y][self.grid_starting_position[0] + step_x] = 0
+        meter_in_pixel = int(1 / self.map_properties['resolution'])
+        iter_i = 1
+        while iter_i < meter_in_pixel:
+            self.start_and_scale[self.grid_starting_position[1]][self.grid_starting_position[0] + iter_i] = 0
+            self.start_and_scale[self.grid_starting_position[1] - iter_i][self.grid_starting_position[0]] = 0
+            iter_i += 1
+        self.start_and_scale[self.grid_starting_position[1] - 1][self.grid_starting_position[0] + meter_in_pixel - 2] = 0 # draw arrow
+        self.start_and_scale[self.grid_starting_position[1] + 1][self.grid_starting_position[0] + meter_in_pixel - 2] = 0
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel + 2][self.grid_starting_position[0] - 1] = 0 # draw arrow
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel + 2][self.grid_starting_position[0] + 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - 5][self.grid_starting_position[0] + meter_in_pixel] = 0 # draw "x"
+        self.start_and_scale[self.grid_starting_position[1] - 5 - 1][self.grid_starting_position[0] + meter_in_pixel - 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - 5 + 1][self.grid_starting_position[0] + meter_in_pixel - 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - 5 + 1][self.grid_starting_position[0] + meter_in_pixel + 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - 5 - 1][self.grid_starting_position[0] + meter_in_pixel + 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel][self.grid_starting_position[0] + 5] = 0 # draw "y"
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel - 1][self.grid_starting_position[0] + 5 - 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel - 1][self.grid_starting_position[0] + 5 + 1] = 0
+        self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel + 1][self.grid_starting_position[0] + 5] = 0
+        
 
         if self.verbose:
             print("Verbose infos:")
