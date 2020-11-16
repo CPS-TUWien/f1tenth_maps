@@ -16,6 +16,6 @@ output/%.npz: ../maps/%.yaml generate-costmap.py
 install-requirements:
 	pip3 install -r requirements.txt
 
-test: output/plechaty1.npz read-costmap.py
+test: output/berlin.npz read-costmap.py
 	python3 read-costmap.py --input=$<
 
