@@ -16,7 +16,7 @@
    width="2000"
    height="2000"
    style="clip-rule:evenodd;stroke-miterlimit:10"
-   inkscape:export-filename="/home/andreas/eigene_dateien/UNI/univ-ass/ARC/git-repo/f1tenth_maps/train_pile_of_blocks_flipped.png"
+   inkscape:export-filename="/home/andreas/eigene_dateien/UNI/univ-ass/ARC/git-repo/f1tenth_maps/columbia_simple.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <metadata
@@ -45,12 +45,12 @@
      id="namedview148"
      showgrid="false"
      inkscape:zoom="0.43215593"
-     inkscape:cx="161.46881"
-     inkscape:cy="1065.5435"
+     inkscape:cx="879.95947"
+     inkscape:cy="1056.2876"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g2833"
+     inkscape:current-layer="g2870"
      inkscape:object-paths="true"
      units="px" />
   <desc
@@ -2802,10 +2802,11 @@
     </g>
   </g>
   <g
-     style="display:inline"
+     style="display:none"
      inkscape:groupmode="layer"
      id="g2833"
-     inkscape:label="pile_of_blocks_flipped">
+     inkscape:label="pile_of_blocks_flipped"
+     sodipodi:insensitive="true">
     <g
        style="clip-rule:evenodd;display:inline;stroke-miterlimit:10"
        id="g2768"
@@ -3013,6 +3014,27 @@
            id="tspan2827"
            sodipodi:role="line">8</tspan></text>
     </g>
+  </g>
+  <g
+     inkscape:label="columbia_simple"
+     id="g2870"
+     inkscape:groupmode="layer"
+     style="display:inline">
+    <text
+       id="text2857"
+       y="1541.942"
+       x="663.9104"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:218.05000305;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;clip-rule:evenodd;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-miterlimit:10"
+       xml:space="preserve"><tspan
+         y="1541.942"
+         x="663.9104"
+         id="tspan2855"
+         sodipodi:role="line">columbia_simple</tspan></text>
+    <path
+       style="fill:#ffffff;stroke:#000000;stroke-width:3;stroke-miterlimit:10;stroke-dasharray:none"
+       d="m 1202.0684,1608.1828 c -2.3227,-1.9484 -10.4773,-8.7125 -18.1213,-15.0312 -112.1297,-92.6893 -193.92798,-233.251 -231.95751,-398.5944 -14.351,-62.3949 -17.75243,-113.991 -12.70735,-192.755 4.87707,-76.14008 0.46306,-105.29658 -23.6894,-156.47912 -23.31904,-49.41634 -47.53944,-79.5711 -107.64792,-134.023 -26.34591,-23.86661 -36.81938,-34.36299 -48.01658,-48.12161 -124.861,-153.42352 56.51987,-416.274 298.42296,-432.46353 161.5287,-10.81041 307.7045,65.25984 374.3345,194.80464 44.5221,86.56162 76.1234,206.9168 87.3149,332.54445 12.3103,138.18477 44.2592,202.72648 145.5766,294.08757 25.5235,23.0153 39.86,37.4118 51.7886,52.005 103.5129,126.6363 60.6219,346.3494 -96.0773,492.1646 -129.0767,120.1113 -284.9204,124.5209 -419.2202,11.8616 z m 91.8856,-32.4893 c 94.1,56.5076 185.8879,43.1908 274.9101,-39.8845 122.5497,-114.3633 162.0373,-288.8427 86.323,-381.4253 -9.4032,-11.498 -21.7186,-23.7078 -45.9281,-45.5339 -67.371,-60.7385 -96.6304,-98.2497 -125.0075,-160.2622 -26.0226,-56.8673 -36.8265,-101.97309 -44.0279,-183.81511 -8.9511,-101.7275 -30.1136,-189.99714 -66.0658,-275.56403 -49.6317,-118.12445 -158.9104,-183.24401 -300.6882,-179.18127 -184.00749,5.27287 -341.38756,206.72702 -243.64965,311.88336 6.73262,7.24363 14.34658,14.37526 48.59977,45.5211 68.36342,62.16164 112.7699,131.1014 132.84908,206.24426 10.8512,40.60878 12.139,66.94947 7.1416,146.06909 -12.2089,193.2896 77.0994,397.8068 227.6959,521.427 10.8588,8.9138 38.9271,29.1646 47.8477,34.5215 z"
+       id="path2883"
+       inkscape:connector-curvature="0" />
   </g>
   <g
      style="display:none"
