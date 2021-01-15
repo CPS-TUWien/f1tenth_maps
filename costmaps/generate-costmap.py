@@ -351,7 +351,7 @@ class CostmapGenerator:
             #              image=cmapy.colorize(img_as_ubyte(normalized_spline_line), 'plasma', rgb_order=True),
             #              mask=drivable_area), check_contrast=False)
 
-        np.savez(self.output_path, [    self.world_starting_position[0],
+        np.savez(self.output_path, properties=[    self.world_starting_position[0],
                                         self.world_starting_position[1],
                                         self.grid_starting_position[0], 
                                         self.grid_starting_position[1],
@@ -363,10 +363,10 @@ class CostmapGenerator:
                                         self.image.shape[0], 
                                         self.image.shape[1],
                                         self.map_properties['resolution']],
-                                 drivable_area, 
-                                 normalized_distance_from_start_line, 
-                                 normalized_distance_to_target_smoothed,
-                                 normalized_distances_from_nearest_obstacle)
+                                 drivable_area=drivable_area, 
+                                 norm_distance_from_start=normalized_distance_from_start_line, 
+                                 norm_distance_to=normalized_distance_to_target_smoothed,
+                                 norm_distance_to_obstacle=normalized_distances_from_nearest_obstacle)
 
 # ======================================================================================================================
 
