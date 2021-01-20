@@ -55,7 +55,7 @@ for block in bpy.data.collections:
 # #######
 # import SVG
 
-bpy.ops.import_curve.svg(filepath="f1_aut_wide_wall-polygon.svg")
+bpy.ops.import_curve.svg(filepath="Treitlstrasse_3-U_v2_wall-polygon.svg")
 
 context = bpy.context
 #obj = context.object
@@ -75,7 +75,7 @@ for obj in bpy.context.scene.objects:
 #directory = os.path.dirname(importDir)
 #target_file = os.path.join(directory, "f1_aut_wall-polygon.obj")
 
-target_file = "/home/andreas/ARC/racecar_gym/models/scenes/austria/meshes/Walls.obj"
+target_file = "/home/andreas/ARC/racecar_gym/models/scenes/austria_wide/meshes/Walls.obj"
 bpy.ops.export_scene.obj(filepath=target_file, \
                         check_existing=True, \
                         axis_forward='X', \
@@ -100,4 +100,4 @@ bpy.ops.export_scene.obj(filepath=target_file, \
                         global_scale=1, \
                         path_mode='AUTO')
 
-print("\n\n\n\n")
+print("\ndone.\n\n\n")
