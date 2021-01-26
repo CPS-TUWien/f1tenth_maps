@@ -19,7 +19,7 @@ def curve_to_mesh(context, curve):
     new_obj.select_set(True)
     context.view_layer.objects.active = new_obj
 
-importDir = "/home/andreas/ARC/f1tenth_maps/maps_svg" 
+importDir = "../maps_svg" 
 print("Importing all SVG from this directory", importDir)
 
 os.chdir(importDir)
@@ -55,7 +55,7 @@ for block in bpy.data.collections:
 # #######
 # import SVG
 
-bpy.ops.import_curve.svg(filepath="Treitlstrasse_3-U_v2_wall-polygon.svg")
+bpy.ops.import_curve.svg(filepath="Treitlstrasse_3-U_v3_wall-polygon.svg")
 
 context = bpy.context
 #obj = context.object
@@ -75,7 +75,7 @@ for obj in bpy.context.scene.objects:
 #directory = os.path.dirname(importDir)
 #target_file = os.path.join(directory, "f1_aut_wall-polygon.obj")
 
-target_file = "/home/andreas/ARC/racecar_gym/models/scenes/austria_wide/meshes/Walls.obj"
+target_file = "/home/andreas/ARC/racecar_gym/models/scenes/treitlstrasse_v3/meshes/Walls.obj"
 bpy.ops.export_scene.obj(filepath=target_file, \
                         check_existing=True, \
                         axis_forward='X', \
