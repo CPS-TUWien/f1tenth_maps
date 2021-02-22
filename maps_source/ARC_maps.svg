@@ -16,7 +16,7 @@
    width="2000"
    height="2000"
    style="clip-rule:evenodd;stroke-miterlimit:10"
-   inkscape:export-filename="/home/andreas/ARC/f1tenth_maps/maps/Treitlstrasse_3-U_v1.png"
+   inkscape:export-filename="/home/andreas/ARC/f1tenth_simulator_ws/src/f1tenth_maps/maps/f1_aut.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <metadata
@@ -44,13 +44,13 @@
      inkscape:window-height="1685"
      id="namedview148"
      showgrid="false"
-     inkscape:zoom="1.2223216"
-     inkscape:cx="1117.6048"
-     inkscape:cy="957.49381"
+     inkscape:zoom="1.7286238"
+     inkscape:cx="1336.6571"
+     inkscape:cy="1024.1195"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g5097"
+     inkscape:current-layer="g1403"
      inkscape:object-paths="true"
      units="px" />
   <desc
@@ -1247,11 +1247,10 @@
          sodipodi:role="line">Rectangle</tspan></text>
   </g>
   <g
-     style="display:none"
+     style="display:inline"
      inkscape:label="redbull"
      id="g1403"
-     inkscape:groupmode="layer"
-     sodipodi:insensitive="true">
+     inkscape:groupmode="layer">
     <path
        sodipodi:nodetypes="cssccccccccccccccccccccccccccccccccccccccccscccsscccccsscccccccccccccccccsccccccccccscccccccccccccccccc"
        inkscape:connector-curvature="0"
@@ -10887,7 +10886,7 @@
          y="5806.7798" /></text>
   </g>
   <g
-     style="display:inline"
+     style="display:none"
      inkscape:label="treitlstrasze_1ug_v1"
      id="g5097"
      inkscape:groupmode="layer"
@@ -28197,11 +28196,11 @@
      style="display:none"
      sodipodi:insensitive="true">
     <circle
-       style="clip-rule:evenodd;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.8102923;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="clip-rule:evenodd;fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:1.06722867;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path1664"
-       cx="1000"
-       cy="1000"
-       r="5" />
+       cx="1000.3749"
+       cy="999.33588"
+       r="6.5854549" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:5;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;clip-rule:evenodd;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-miterlimit:10"
@@ -28213,5 +28212,15 @@
          y="139.46408"
          style="line-height:0px"
          id="tspan2788">Rennstrecke: 40px - Begrenzung 3px</tspan></text>
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 956,999.5 h 89.5836"
+       id="path6284"
+       inkscape:connector-curvature="0" />
+    <path
+       style="clip-rule:evenodd;display:inline;fill:none;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1"
+       d="m 1000.5,953.64083 v 89.58357"
+       id="path6284-3"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

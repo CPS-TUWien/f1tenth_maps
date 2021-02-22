@@ -31,8 +31,10 @@ class CostmapGenerator:
             self.map_properties = yaml.safe_load(file)
 
         self.output_path = output_path
+        self.basename, _ = os.path.splitext(os.path.basename(input_yaml_path))
         self.output_filename_root, _ = os.path.splitext(self.output_path)
         self.input_directory = os.path.dirname(input_yaml_path)
+
         image_filename = os.path.join(self.input_directory, self.map_properties['image'])
         self.image = io.imread(image_filename, as_gray=True).astype(np.float)
         self.image_center = (self.image.shape + np.array(self.map_properties['origin'])[0:2] /
@@ -83,6 +85,27 @@ class CostmapGenerator:
         self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel - 1][self.grid_starting_position[0] + 5 + 1] = 0
         self.start_and_scale[self.grid_starting_position[1] - meter_in_pixel + 1][self.grid_starting_position[0] + 5] = 0
         
+        if self.basename == "Treitlstrasse_3-U_v3":
+            print("map with custom settings: ", self.basename)
+            self.erosion_value = 9
+            self.d_value = 25
+            self.use_blurred_factor = True
+        elif self.basename == "f1_aut":
+            print("map with custom settings: ", self.basename)
+            self.erosion_value = 12
+            self.d_value = 30
+            self.use_blurred_factor = False
+        elif self.basename == "columbia_simple":
+            print("map with custom settings: ", self.basename)
+            self.erosion_value = 17
+            self.d_value = 35
+            self.use_blurred_factor = True
+        else:
+            print("no custom settings for map (use default): ", self.basename)
+            self.erosion_value = 12
+            self.d_value = 25
+            self.use_blurred_factor = True
+
 
         if self.verbose:
             print("Verbose infos:")
@@ -235,9 +258,12 @@ class CostmapGenerator:
         distances_blurred_border_start_blank = ndimage.gaussian_filter(distances_extended_start_blank, sigma=5) * drivable_area
         distances_blurred_border = distances_blurred_border_target_blank * mask_start + distances_blurred_border_start_blank * (1-mask_start)
 
-        if erosion_value == 0:
-            distances = distances + distances_blurred * 0.04 + distances_blurred_border * 0.02
-        else:
+        #if erosion_value == 0:
+        #    distances = distances + distances_blurred * 0.04 + distances_blurred_border * 0.02
+        #else:
+        #    distances = distances + distances_blurred * 0.08 + distances_blurred_border * 0.06
+
+        if self.use_blurred_factor:
             distances = distances + distances_blurred * 0.08 + distances_blurred_border * 0.06
 
         distances = distances * float(self.map_properties['resolution'])
@@ -296,7 +322,7 @@ class CostmapGenerator:
             io.imsave(self.output_filename_root + '.race_line_' + filename_part + '.png', img_as_ubyte(race_line * 255) - self.binary_image.astype(float) * 150)
 
         #d = 35
-        d = 25
+        d = self.d_value
         p = scipy_bspline(cv,n=1000,degree=d,periodic=True)
         
         cv_save = (cv - 1000) * self.map_properties['resolution']
@@ -335,8 +361,9 @@ class CostmapGenerator:
     def run(self):
 
         drivable_area_eroded, distance_to_target_eroded_smoothed, normalized_distance_to_target_eroded_smoothed, _, _, _, _ = \
-            self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, erosion_value = 9, forward_direction = False)
-                                                                                                    # erosion_value = 12
+            self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, \
+            erosion_value = self.erosion_value, forward_direction = False)
+
         drivable_area, distance_to_target_smoothed, normalized_distance_to_target_smoothed, _, _, _, _ = \
             self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, forward_direction = False)
 
