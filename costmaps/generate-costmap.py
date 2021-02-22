@@ -19,10 +19,12 @@ class CostmapGenerator:
                  starting_position,
                  input_yaml_path,
                  output_path,
-                 export_images = False):
+                 export_images = False,
+                 export_debug = False):
 
         self.world_starting_position = np.asarray(starting_position)
         self.export_images = export_images
+        self.export_debug = export_debug
         self.verbose = True
 
         with open(input_yaml_path) as file:
@@ -37,6 +39,10 @@ class CostmapGenerator:
                              self.map_properties['resolution']).astype(np.int)
         self.normalized_image = self.image / np.amax(self.image.flatten()) # normalize image
         self.binary_image = self.normalized_image > (self.map_properties['occupied_thresh'])
+        
+        # extra for optimized spline at Treitlstrasse_3-U_v3
+        self.binary_image[987, 1294] = 0; # first turn
+        #self.binary_image[930, 1300] = 0; # second turn at narrow passage
 
         self.grid_starting_position = np.divide(self.world_starting_position - np.array(self.map_properties['origin'])[0:2],
                                                 self.map_properties['resolution'])
@@ -175,13 +181,14 @@ class CostmapGenerator:
                 print("distance = {}".format(current_distance))
 
         #For debugging:
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.finish_line.png', img_as_ubyte(finish_line), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.binary_image.png', img_as_ubyte(binary_image), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.mask.png', img_as_ubyte(mask), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_start.png', img_as_ubyte(mask_start), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_start_small.png', img_as_ubyte(mask_start_small), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_target.png', img_as_ubyte(mask_target), check_contrast=False)
-        #io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_target_small.png', img_as_ubyte(mask_target_small), check_contrast=False)
+        if self.export_debug:
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.finish_line.png', img_as_ubyte(finish_line), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.binary_image.png', img_as_ubyte(binary_image), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.mask.png', img_as_ubyte(mask), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_start.png', img_as_ubyte(mask_start), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_start_small.png', img_as_ubyte(mask_start_small), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_target.png', img_as_ubyte(mask_target), check_contrast=False)
+            io.imsave(self.output_filename_root + '.' + filename_extra + '.mask_target_small.png', img_as_ubyte(mask_target_small), check_contrast=False)
 
         distances[np.nonzero(finish_line)] = (current_distance)
         distances = distances * float(self.map_properties['resolution'])
@@ -244,7 +251,7 @@ class CostmapGenerator:
         race_line = np.zeros_like(self.binary_image, np.float)
         spline_line = np.zeros_like(self.binary_image, np.float)
 
-        race_pos = [starting_position[1], starting_position[0]+10]; # start ten pixels right of the finish-line
+        race_pos = [starting_position[1], starting_position[0] + 10]; # start ten pixels right of the finish-line
 
         race_line[race_pos[0], race_pos[1]] = 1;
         cv = [race_pos];
@@ -264,10 +271,13 @@ class CostmapGenerator:
                     best_val = candidate_val
                     best_pos = candidate_pos
                     better = True
-            if np.mod(a_distance,15) == 0:
+#            if np.mod(a_distance,15) == 0:
+            if np.mod(a_distance,10) == 0:
                 cv = np.append(cv, [race_pos], axis=0)
 
-            #print("  best_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
+            #For debugging:
+            if self.export_debug:
+                print("  best_pos {} {} val {} from current val {}".format(best_pos[0], best_pos[1], best_val, normalized_target_distances[race_pos[0], race_pos[1]]))
 
             race_pos = best_pos
             if race_line[race_pos[0], race_pos[1]] == 1: # cannot advance, car is stuck
@@ -281,18 +291,21 @@ class CostmapGenerator:
                 break
 
         #For debugging:
-        #race_line = morphology.binary_dilation(race_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
-        #io.imsave(self.output_filename_root + '.race_line_' + filename_part + '.png', img_as_ubyte(race_line * 255) - self.binary_image.astype(float) * 150)
+        if self.export_debug:
+            race_line = morphology.binary_dilation(race_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
+            io.imsave(self.output_filename_root + '.race_line_' + filename_part + '.png', img_as_ubyte(race_line * 255) - self.binary_image.astype(float) * 150)
 
-        d = 35
+        #d = 35
+        d = 25
         p = scipy_bspline(cv,n=1000,degree=d,periodic=True)
 
         for [spline_x, spline_y] in p.astype(int):
             spline_line[spline_x, spline_y] = 1;
 
         #For debugging:
-        #spline_line = morphology.binary_dilation(spline_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
-        #io.imsave(self.output_filename_root + '.spline_line.png', img_as_ubyte(spline_line * 255) - self.binary_image.astype(float) * 150)
+        if self.export_debug:
+            spline_line = morphology.binary_dilation(spline_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
+            io.imsave(self.output_filename_root + '.spline_line.png', img_as_ubyte(spline_line * 255) - self.binary_image.astype(float) * 150)
 
         spline_line_blurred = ndimage.gaussian_filter(spline_line.astype(float) * 150, sigma=3) * full_drivable_area;
         for it in range(1,10):
@@ -300,7 +313,8 @@ class CostmapGenerator:
 
         normalized_spline_line_blurred = spline_line_blurred / np.amax(spline_line_blurred.flatten())
         #For debugging:
-        #io.imsave(self.output_filename_root + '.spline_line_' + filename_part + '.colorized.png', cmapy.colorize(img_as_ubyte(normalized_spline_line_blurred), 'plasma', rgb_order=True) - (100*np.repeat(self.binary_image[:, :, np.newaxis], 3, axis=2).astype(float)))
+        if self.export_debug:
+            io.imsave(self.output_filename_root + '.spline_line_' + filename_part + '.colorized.png', cmapy.colorize(img_as_ubyte(normalized_spline_line_blurred), 'plasma', rgb_order=True) - (100*np.repeat(self.binary_image[:, :, np.newaxis], 3, axis=2).astype(float)))
 
         return normalized_spline_line_blurred
 
@@ -310,16 +324,16 @@ class CostmapGenerator:
     def run(self):
 
         drivable_area_eroded, distance_to_target_eroded_smoothed, normalized_distance_to_target_eroded_smoothed, _, _, _, _ = \
-            self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, erosion_value = 12, forward_direction = False)
-
+            self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, erosion_value = 9, forward_direction = False)
+                                                                                                    # erosion_value = 12
         drivable_area, distance_to_target_smoothed, normalized_distance_to_target_smoothed, _, _, _, _ = \
             self.compute_distance_transform_smoothed(starting_position=self.grid_starting_position, forward_direction = False)
 
         drivable_area, distance_from_start_line, normalized_distance_from_start_line, _, _, _, _ = \
             self.compute_distance_transform(starting_position=self.grid_starting_position, forward_direction = True)
 
-        #self.compute_raceline(self.grid_starting_position, drivable_area, drivable_area, distance_to_target_smoothed, "full")
-        #normalized_spline_line = self.compute_raceline(self.grid_starting_position, drivable_area_eroded, drivable_area, distance_to_target_eroded_smoothed, "eroded")
+        self.compute_raceline(self.grid_starting_position, drivable_area, drivable_area, distance_to_target_smoothed, "full")
+        normalized_spline_line = self.compute_raceline(self.grid_starting_position, drivable_area_eroded, drivable_area, distance_to_target_eroded_smoothed, "eroded")
 
         distances_from_nearest_obstacle = ndimage.distance_transform_edt(drivable_area, return_distances=True, return_indices=False)
         distances_from_nearest_obstacle = distances_from_nearest_obstacle.astype(float) * float(self.map_properties['resolution'])
@@ -347,9 +361,9 @@ class CostmapGenerator:
             io.imsave(self.output_filename_root + '.distances_from_nearest_obstacle.colorized.png', mask_image(
                           image=cmapy.colorize(img_as_ubyte(normalized_distances_from_nearest_obstacle), 'plasma', rgb_order=True),
                           mask=drivable_area), check_contrast=False)
-            #io.imsave(self.output_filename_root + '.spline_line.colorized.png', mask_image(
-            #              image=cmapy.colorize(img_as_ubyte(normalized_spline_line), 'plasma', rgb_order=True),
-            #              mask=drivable_area), check_contrast=False)
+            io.imsave(self.output_filename_root + '.spline_line.colorized.png', mask_image(
+                          image=cmapy.colorize(img_as_ubyte(normalized_spline_line), 'plasma', rgb_order=True),
+                          mask=drivable_area), check_contrast=False)
 
         np.savez(self.output_path, properties=[    self.world_starting_position[0],
                                         self.world_starting_position[1],
@@ -408,11 +422,13 @@ if __name__ == "__main__":
     parser.add_argument('--start_y', help='starting position (y) in world coordinates', default='0.0')
     parser.add_argument('--input', help='filename of the map description (.yaml)')
     parser.add_argument('--output', help='filename of the output dataset (.npz)')
-    parser.add_argument('--export_images', help='export each layer as bitmap (for debugging purposes)', action='store_true')
+    parser.add_argument('--export_images', help='export each layer as bitmap', action='store_true')
+    parser.add_argument('--export_debug', help='export more layers as bitmap (for debugging purposes)', action='store_true')
     args = parser.parse_args()
     app = CostmapGenerator(starting_position=(float(args.start_x),float(args.start_y)),
                            input_yaml_path=args.input,
                            output_path=args.output,
-                           export_images=args.export_images)
+                           export_images=args.export_images,
+                           export_debug=args.export_debug)
     app.run()
 

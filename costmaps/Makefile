@@ -17,9 +17,12 @@ output/torino_redraw_small.npz \
 clean:
 	rm -rf output
 
+%: output/%.npz
+	echo "generated $@"
+
 output/%.npz: ../maps/%.yaml generate-costmap.py
 	mkdir -p output
-	python3 generate-costmap.py --input=$< --output=$@ --export_images
+	python3 generate-costmap.py --input=$< --output=$@ --export_images --export_debug
 
 install-requirements:
 	pip3 install -r requirements.txt
