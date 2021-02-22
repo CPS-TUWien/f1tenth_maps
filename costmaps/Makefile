@@ -1,3 +1,11 @@
+.PHONY: build deploy
+
+allmaps := $(shell "ls ../maps | grep yaml")
+allbuilds := $(addprefix build-,$(allmaps))
+
+$(allbuilds):
+	echo "need to build: $@"
+
 all: \
 output/plechaty1.npz \
 output/berlin.npz \
