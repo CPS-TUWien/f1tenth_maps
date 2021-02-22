@@ -90,21 +90,25 @@ class CostmapGenerator:
             self.erosion_value = 9
             self.d_value = 25
             self.use_blurred_factor = True
+            self.sample_every = 10
         elif self.basename == "f1_aut":
             print("map with custom settings: ", self.basename)
             self.erosion_value = 12
             self.d_value = 30
             self.use_blurred_factor = False
-        elif self.basename == "columbia_simple":
+            self.sample_every = 10
+        elif self.basename == "columbia_small":
             print("map with custom settings: ", self.basename)
-            self.erosion_value = 17
-            self.d_value = 35
-            self.use_blurred_factor = True
+            self.erosion_value = 27
+            self.d_value = 40
+            self.use_blurred_factor = False
+            self.sample_every = 30
         else:
             print("no custom settings for map (use default): ", self.basename)
             self.erosion_value = 12
             self.d_value = 25
             self.use_blurred_factor = True
+            self.sample_every = 15
 
 
         if self.verbose:
@@ -298,7 +302,7 @@ class CostmapGenerator:
                     best_pos = candidate_pos
                     better = True
 #            if np.mod(a_distance,15) == 0:
-            if np.mod(a_distance,10) == 0:
+            if np.mod(a_distance,self.sample_every) == 0:
                 cv = np.append(cv, [race_pos], axis=0)
 
             #For debugging:
