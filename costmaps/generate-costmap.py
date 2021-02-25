@@ -329,16 +329,16 @@ class CostmapGenerator:
         d = self.d_value
         p = scipy_bspline(cv,n=1000,degree=d,periodic=True)
         
-        cv_save = (cv - 1000) * self.map_properties['resolution']
-        cv_save[:,[0, 1]] = cv_save[:,[1, 0]]
+        #cv_save = (cv - 1000) * self.map_properties['resolution']
+        #cv_save[:,[0, 1]] = cv_save[:,[1, 0]]
         #cv_save = cv_save - 1000 #np.array(self.map_properties['origin'])[0:2]
-        p_save = (p - 1000) * self.map_properties['resolution']
-        p_save[:,[0, 1]] = p_save[:,[1, 0]]
-        p_save[:,1] = 0 - p_save[:,1] # invert y axis
+        #p_save = (p - 1000) * self.map_properties['resolution']
+        #p_save[:,[0, 1]] = p_save[:,[1, 0]]
+        #p_save[:,1] = 0 - p_save[:,1] # invert y axis
         #np.array(self.map_properties['origin'])[0:2]
         
-        np.savetxt(self.output_filename_root + '.spline_line_cv.csv', cv_save, delimiter=",")
-        np.savetxt(self.output_filename_root + '.spline_line_p.csv', p_save, delimiter=",")
+        #np.savetxt(self.output_filename_root + '.spline_line_cv.csv', cv_save, delimiter=",")
+        #np.savetxt(self.output_filename_root + '.spline_line_p.csv', p_save, delimiter=",")
 
         for [spline_x, spline_y] in p.astype(int):
             spline_line[spline_x, spline_y] = 1;
