@@ -1,0 +1,16 @@
+
+# Start Positition Single Vehicle Time Trial
+sx: 0.0702245
+sy: 0.3002981
+stheta: 2.79787
+
+# Start Positition Multi Vehicle Head to Head Race
+# Vehicle 1 (P1)
+sx: 0.0702245
+sy: 0.3002981
+stheta: 2.79787
+
+# Vehicle 2 (P2)
+sx2: 0.9966514
+sy2: -0.9306893
+stheta2: 2.79787

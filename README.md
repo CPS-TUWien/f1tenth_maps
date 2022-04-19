@@ -42,6 +42,7 @@ The costmap generator in folder `costmaps` provides a script to calculate severa
 * `torino_redraw_small_with_obstacles`: redrawn based on `torino`
 * `unreal`: [pmusau17/f1tenth_gym_ros](https://github.com/pmusau17/f1tenth_gym_ros/tree/master/maps)
 * `vegas`: [f1tenth/f1tenth_gym](https://github.com/f1tenth/f1tenth_gym/tree/cpp_backend_archive/maps)
+* `Oschersleben`: [F1TENTH IROS 2022 Race Resources](https://icra2022-race.f1tenth.org/race_ressources.html)
 
 All other maps were created by us.
 
