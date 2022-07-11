@@ -36,14 +36,14 @@ class CostmapGenerator:
         self.input_directory = os.path.dirname(input_yaml_path)
 
         image_filename = os.path.join(self.input_directory, self.map_properties['image'])
-        self.image = io.imread(image_filename, as_gray=True).astype(np.float)
+        self.image = io.imread(image_filename, as_gray=True).astype(float)
         self.image_center = (self.image.shape + np.array(self.map_properties['origin'])[0:2] /
-                             self.map_properties['resolution']).astype(np.int)
+                             self.map_properties['resolution']).astype(int)
         self.normalized_image = self.image / np.amax(self.image.flatten()) # normalize image
         self.binary_image = self.normalized_image > (self.map_properties['occupied_thresh'])
         
         # extra for optimized spline at Treitlstrasse_3-U_v3
-        self.binary_image[987, 1294] = 0; # first turn
+        #self.binary_image[987, 1294] = 0; # first turn
         #self.binary_image[930, 1300] = 0; # second turn at narrow passage
 
         self.grid_starting_position = np.divide(self.world_starting_position - np.array(self.map_properties['origin'])[0:2],
@@ -135,15 +135,15 @@ class CostmapGenerator:
             filename_extra = "full"
         else:
             binary_image = np.copy(self.binary_image)
-            binary_image = morphology.binary_erosion(binary_image, selem=morphology.selem.disk(radius=erosion_value, dtype=np.bool))
+            binary_image = morphology.binary_erosion(binary_image, footprint=morphology.disk(radius=erosion_value, dtype=bool))
             filename_extra = "eroded-by-{}".format(erosion_value)
 
-        distances = np.zeros_like(binary_image, np.float)
+        distances = np.zeros_like(binary_image, float)
 
-        mask = np.zeros_like(binary_image, np.bool)
-        mask_start = np.zeros_like(binary_image, np.bool)
-        mask_target = np.zeros_like(binary_image, np.bool)
-        finish_line = np.zeros_like(binary_image, np.bool)
+        mask = np.zeros_like(binary_image, bool)
+        mask_start = np.zeros_like(binary_image, bool)
+        mask_target = np.zeros_like(binary_image, bool)
+        finish_line = np.zeros_like(binary_image, bool)
         mask[self.grid_starting_position[1], self.grid_starting_position[0]] = True
         mask_start[self.grid_starting_position[1], self.grid_starting_position[0]+2] = True
         mask_target[self.grid_starting_position[1], self.grid_starting_position[0]-2] = True
@@ -166,7 +166,7 @@ class CostmapGenerator:
         dist = 0.0
         while True:
             dist = dist + 1.0
-            dilated_mask_start = morphology.binary_dilation(mask_start, selem=morphology.selem.square(width=3, dtype=np.bool))
+            dilated_mask_start = morphology.binary_dilation(mask_start, footprint=morphology.square(width=3, dtype=bool))
             new_pixels = np.logical_and(binary_image, np.logical_xor(mask_start, dilated_mask_start))
             x,y = np.nonzero(new_pixels)
             mask_start = np.logical_or(mask_start, new_pixels)
@@ -181,7 +181,7 @@ class CostmapGenerator:
         dist = 0.0
         while True:
             dist = dist + 1.0
-            dilated_mask_target = morphology.binary_dilation(mask_target, selem=morphology.selem.square(width=3, dtype=np.bool))
+            dilated_mask_target = morphology.binary_dilation(mask_target, footprint=morphology.square(width=3, dtype=bool))
             new_pixels = np.logical_and(binary_image, np.logical_xor(mask_target, dilated_mask_target))
             x,y = np.nonzero(new_pixels)
             mask_target = np.logical_or(mask_target, new_pixels)
@@ -197,7 +197,7 @@ class CostmapGenerator:
         current_distance = 0.0
         while True:
             current_distance = current_distance + 1.0
-            dilated_mask = morphology.binary_dilation(mask, selem=morphology.selem.square(width=3, dtype=np.bool))
+            dilated_mask = morphology.binary_dilation(mask, footprint=morphology.square(width=3, dtype=bool))
             new_pixels = np.logical_and(binary_image, np.logical_xor(mask, dilated_mask))
             x,y = np.nonzero(new_pixels)
             if len(x) == 0:
@@ -235,8 +235,8 @@ class CostmapGenerator:
         # dilate race area using maximum filter, s.t. gaussian filter does not introduce values from outside the race area
         distances_extended = distances_blurred * drivable_area + ndimage.maximum_filter(distances_blurred, size=10) * (1-drivable_area)
         # split sections around finish line, s.t. gaussian filter does not introduce values from the other side of the finish line
-        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, np.float) * mask_target + distances_extended * (1-mask_target)
-        distances_extended_start_blank = np.full_like(self.binary_image, 0, np.float) * mask_start_small + distances_extended * (1-mask_start_small)
+        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, float) * mask_target + distances_extended * (1-mask_target)
+        distances_extended_start_blank = np.full_like(self.binary_image, 0, float) * mask_start_small + distances_extended * (1-mask_start_small)
 
         distances_blurred_target_blank = ndimage.gaussian_filter(distances_extended_target_blank, sigma=3) * drivable_area
         distances_blurred_start_blank = ndimage.gaussian_filter(distances_extended_start_blank, sigma=3) * drivable_area
@@ -245,18 +245,18 @@ class CostmapGenerator:
         # dilate race area using maximum filter, s.t. gaussian filter does not introduce values from outside the race area
         distances_extended = distances_blurred * drivable_area + ndimage.maximum_filter(distances_blurred, size=10) * (1-drivable_area)
         # split sections arount finish line, s.t. gaussian filter does not introduce values from the other side of the finish line
-        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, np.float) * mask_target + distances_extended * (1-mask_target)
-        distances_extended_start_blank = np.full_like(self.binary_image, 0, np.float) * mask_start_small + distances_extended * (1-mask_start_small)
+        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, float) * mask_target + distances_extended * (1-mask_target)
+        distances_extended_start_blank = np.full_like(self.binary_image, 0, float) * mask_start_small + distances_extended * (1-mask_start_small)
 
         distances_blurred_target_blank = ndimage.gaussian_filter(distances_extended_target_blank, sigma=3) * drivable_area
         distances_blurred_start_blank = ndimage.gaussian_filter(distances_extended_start_blank, sigma=3) * drivable_area
         distances_blurred = distances_blurred_target_blank * mask_start + distances_blurred_start_blank * (1-mask_start)
 
 
-        distances_extended = distances * drivable_area + np.full_like(self.binary_image, t_distance, np.float) * (1-drivable_area)
+        distances_extended = distances * drivable_area + np.full_like(self.binary_image, t_distance, float) * (1-drivable_area)
         # split sections arount finish line, s.t. gaussian filter does not introduce values from the other side of the finish line
-        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, np.float) * mask_target + distances_extended * (1-mask_target)
-        distances_extended_start_blank = np.full_like(self.binary_image, 0, np.float) * mask_start_small + distances_extended * (1-mask_start_small)
+        distances_extended_target_blank = np.full_like(self.binary_image, t_distance, float) * mask_target + distances_extended * (1-mask_target)
+        distances_extended_start_blank = np.full_like(self.binary_image, 0, float) * mask_start_small + distances_extended * (1-mask_start_small)
 
         distances_blurred_border_target_blank = ndimage.gaussian_filter(distances_extended_target_blank, sigma=5) * drivable_area
         distances_blurred_border_start_blank = ndimage.gaussian_filter(distances_extended_start_blank, sigma=5) * drivable_area
@@ -278,13 +278,13 @@ class CostmapGenerator:
     # ===================================================================================================================
 
     def compute_raceline(self, starting_position, current_drivable_area, full_drivable_area, normalized_target_distances, filename_part):
-        race_line = np.zeros_like(self.binary_image, np.float)
-        spline_line = np.zeros_like(self.binary_image, np.float)
+        race_line = np.zeros_like(self.binary_image, float)
+        spline_line = np.zeros_like(self.binary_image, float)
 
-        race_pos = [starting_position[1], starting_position[0] + 10]; # start ten pixels right of the finish-line
+        race_pos = [starting_position[1], starting_position[0] + 10]  # start ten pixels right of the finish-line
 
-        race_line[race_pos[0], race_pos[1]] = 1;
-        cv = [race_pos];
+        race_line[race_pos[0], race_pos[1]] = 1
+        cv = [race_pos]
 
         a_distance = 0.0
         while True:
@@ -322,7 +322,7 @@ class CostmapGenerator:
 
         #For debugging:
         if self.export_debug:
-            race_line = morphology.binary_dilation(race_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
+            race_line = morphology.binary_dilation(race_line, footprint=morphology.square(width=2, dtype=bool)) # dilate for thicker line
             io.imsave(self.output_filename_root + '.race_line_' + filename_part + '.png', img_as_ubyte(race_line * 255) - self.binary_image.astype(float) * 150)
 
         #d = 35
@@ -345,7 +345,7 @@ class CostmapGenerator:
 
         #For debugging:
         if self.export_debug:
-            spline_line = morphology.binary_dilation(spline_line, selem=morphology.selem.square(width=2, dtype=np.bool)) # dilate for thicker line
+            spline_line = morphology.binary_dilation(spline_line, footprint=morphology.square(width=2, dtype=bool)) # dilate for thicker line
             io.imsave(self.output_filename_root + '.spline_line.png', img_as_ubyte(spline_line * 255) - self.binary_image.astype(float) * 150)
 
         spline_line_blurred = ndimage.gaussian_filter(spline_line.astype(float) * 150, sigma=3) * full_drivable_area;
